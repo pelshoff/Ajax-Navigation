@@ -6,7 +6,9 @@ Usage
 -----
 Just call
 
- new AjaxNavigator(['#content'])
+```
+new AjaxNavigator(['#content'])
+```
 
 and it flies. All internal links will now use the ajax navigator and on each
 call #content is replaced with a new version.
