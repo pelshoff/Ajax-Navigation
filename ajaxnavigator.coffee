@@ -2,55 +2,41 @@
 # Ajax navigation drop-in; just load it and go!
 # @author Pim Elshoff <pim@pelshoff.com>
 #
+
+
 class window.AjaxNavigator
     constructor: (@replacementSelectors) ->
-        this.popped = ('state' in window.history)
-        this.initialURL = location.href
-        this.registerEventHandlers()
+        @popped = 'state' in window.history
+        @initialURL = location.href
+        @registerEventHandlers()
 
     navigate: (url) =>
-        $(this).trigger 'unload'
-        $.ajax
-            url: url
-            method: 'get'
-            success: this.navigateCallback
-
-    # 'private'
+        ($ @).trigger 'unload'
+        $.get url, @navigateCallback
 
     registerEventHandlers: =>
-        # popstateHandler for browser history navigation
-        $(window).on 'popstate', this.popstateHandler
-        # register anchors to local pages for the whole document and for each replacementSelector
-        $(document).on 'click', 'a[href^="/"]', this.clickHandler
+        ($ window).on 'popstate', @popstateHandler
+        ($ document).on 'click', 'a[href^="/"]', @clickHandler
 
-    clickHandler: (event) =>
-        url = event.target.href
-        history.pushState (url: url), '', url
-        this.navigate url
-        event.preventDefault()
+    clickHandler: (e) =>
+        url = e.target.href
+        history.pushState {url}, '', url
+        @navigate url
+        e.preventDefault()
 
-    popstateHandler: (event) =>
-        initialPop = !this.popped && location.href == this.initialURL
-        this.popped = true
-        if (initialPop)
-            return
-        state = event.originalEvent.state
-        this.navigate state.url || location.href
+    popstateHandler: (e) =>
+        return if not @popped and location.href is @initialURL
+        @navigate e.originalEvent.state.url or location.href
 
-    navigateCallback: (responseText) =>
-        this.replaceTitle responseText
-        $response = $ responseText
-        this.replaceContent $response
-        $(this).trigger 'load'
+    navigateCallback: (res) =>
+        @replaceTitle res
+        @replaceContent $ res
+        ($ @).trigger 'load'
 
-    replaceTitle: (responseText) ->
-        matches = responseText.match /<title>(.*?)<\/title>/
-        if (matches[1])
-            document.title = matches[1]
+    replaceTitle: (res) ->
+        document.title = (res.match /<title>(.*?)<\/title>/)[1] ? document.title
 
-    replaceContent: (response) =>
-        _.each @replacementSelectors, (selector) =>
-            newContent = response.find selector
-            element = $ selector
-            element.fadeOut 'fast', =>
-                element.empty().append(newContent.children()).fadeIn 'fast'
+    replaceContent: (res) =>
+        ($ @replacementSelectors).each (sel) ->
+            $tmp = ($ sel)
+            ($ sel).fadeOut(200).html($tmp.children()).fadeIn(200)
