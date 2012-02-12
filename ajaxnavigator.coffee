@@ -10,7 +10,7 @@ class window.AjaxNavigator
         $(window).bind 'popstate', this.popstateHandler
 
     navigate: (url) =>
-        $(this).trigger('unload')
+        $(this).trigger 'unload'
         $.ajax
             url: url
             method: 'get'
@@ -36,16 +36,16 @@ class window.AjaxNavigator
         this.replaceTitle responseText
         $response = $ responseText
         this.replaceContent $response
-        $(this).trigger('load')
+        $(this).trigger 'load'
 
     replaceTitle: (responseText) ->
-        matches = responseText.match(/<title>(.*?)<\/title>/)
+        matches = responseText.match /<title>(.*?)<\/title>/
         if (matches[1])
             document.title = matches[1]
 
     replaceContent: (response) =>
         _.each @replacementSelectors, (selector) =>
             newContent = response.find selector
-            element = $(selector)
+            element = $ selector
             element.fadeOut 'fast', =>
                 element.empty().append(newContent.children()).fadeIn 'fast'
