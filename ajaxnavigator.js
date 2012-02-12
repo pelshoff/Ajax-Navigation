@@ -10,11 +10,11 @@
       this.navigateCallback = __bind(this.navigateCallback, this);
       this.popstateHandler = __bind(this.popstateHandler, this);
       this.clickHandler = __bind(this.clickHandler, this);
+      this.registerEventHandlers = __bind(this.registerEventHandlers, this);
       this.navigate = __bind(this.navigate, this);
       this.popped = (__indexOf.call(window.history, 'state') >= 0);
       this.initialURL = location.href;
-      $('a[href^="/"]').live('click', this.clickHandler);
-      $(window).bind('popstate', this.popstateHandler);
+      this.registerEventHandlers();
     }
 
     AjaxNavigator.prototype.navigate = function(url) {
@@ -24,6 +24,11 @@
         method: 'get',
         success: this.navigateCallback
       });
+    };
+
+    AjaxNavigator.prototype.registerEventHandlers = function() {
+      $(window).on('popstate', this.popstateHandler);
+      return $(document).on('click', 'a[href^="/"]', this.clickHandler);
     };
 
     AjaxNavigator.prototype.clickHandler = function(event) {
