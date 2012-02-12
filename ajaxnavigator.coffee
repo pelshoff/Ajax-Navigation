@@ -6,8 +6,7 @@ class window.AjaxNavigator
     constructor: (@replacementSelectors) ->
         this.popped = ('state' in window.history)
         this.initialURL = location.href
-        $('a[href^="/"]').live 'click', this.clickHandler
-        $(window).bind 'popstate', this.popstateHandler
+        this.registerEventHandlers()
 
     navigate: (url) =>
         $(this).trigger 'unload'
@@ -17,6 +16,12 @@ class window.AjaxNavigator
             success: this.navigateCallback
 
     # 'private'
+
+    registerEventHandlers: =>
+        # popstateHandler for browser history navigation
+        $(window).on 'popstate', this.popstateHandler
+        # register anchors to local pages for the whole document and for each replacementSelector
+        $(document).on 'click', 'a[href^="/"]', this.clickHandler
 
     clickHandler: (event) =>
         url = event.target.href
