@@ -2,8 +2,6 @@
 # Ajax navigation drop-in; just load it and go!
 # @author Pim Elshoff <pim@pelshoff.com>
 #
-
-
 class window.AjaxNavigator
     constructor: (@replacementSelectors) ->
         @popped = 'state' in window.history
@@ -26,6 +24,7 @@ class window.AjaxNavigator
 
     popstateHandler: (e) =>
         return if not @popped and location.href is @initialURL
+        @popped = true
         @navigate e.originalEvent.state.url or location.href
 
     navigateCallback: (res) =>
@@ -36,7 +35,8 @@ class window.AjaxNavigator
     replaceTitle: (res) ->
         document.title = (res.match /<title>(.*?)<\/title>/)[1] ? document.title
 
-    replaceContent: (res) =>
-        ($ @replacementSelectors).each (sel) ->
-            $tmp = ($ sel)
-            ($ sel).fadeOut(200).html($tmp.children()).fadeIn(200)
+    replaceContent: (res) ->
+        for sel in @replacementSelectors
+            do (sel) ->
+                ($ sel).fadeOut 200, (e) ->
+                    ($ this).html(res.find(sel).children()).fadeIn(200)
