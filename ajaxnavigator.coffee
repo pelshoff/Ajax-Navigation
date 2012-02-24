@@ -4,13 +4,18 @@
 #
 class window.AjaxNavigator
     constructor: (@replacementSelectors) ->
-        @popped = 'state' in window.history
+        @popped = try
+                'state' in window.history
+            catch e
+                false
         @initialURL = location.href
         @registerEventHandlers()
 
     navigate: (url) =>
         ($ @).trigger 'unload'
         $.get url, @navigateCallback
+        $.each @replacementSelectors, (i, sel) ->
+            ($ sel).fadeOut 100
 
     registerEventHandlers: =>
         ($ window).on 'popstate', @popstateHandler
@@ -38,5 +43,4 @@ class window.AjaxNavigator
     replaceContent: (res) ->
         for sel in @replacementSelectors
             do (sel) ->
-                ($ sel).fadeOut 200, (e) ->
-                    ($ this).html(res.find(sel).children()).fadeIn(200)
+                ($ sel).html(res.find(sel).children()).fadeIn 100
