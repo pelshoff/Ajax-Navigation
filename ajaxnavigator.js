@@ -11,14 +11,23 @@
       this.clickHandler = __bind(this.clickHandler, this);
       this.registerEventHandlers = __bind(this.registerEventHandlers, this);
       this.navigate = __bind(this.navigate, this);
-      this.popped = __indexOf.call(window.history, 'state') >= 0;
+      this.popped = (function() {
+        try {
+          return __indexOf.call(window.history, 'state') >= 0;
+        } catch (e) {
+          return false;
+        }
+      })();
       this.initialURL = location.href;
       this.registerEventHandlers();
     }
 
     AjaxNavigator.prototype.navigate = function(url) {
       ($(this)).trigger('unload');
-      return $.get(url, this.navigateCallback);
+      $.get(url, this.navigateCallback);
+      return $.each(this.replacementSelectors, function(i, sel) {
+        return ($(sel)).fadeOut(100);
+      });
     };
 
     AjaxNavigator.prototype.registerEventHandlers = function() {
@@ -60,9 +69,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         sel = _ref[_i];
         _results.push((function(sel) {
-          return ($(sel)).fadeOut(200, function(e) {
-            return ($(this)).html(res.find(sel).children()).fadeIn(200);
-          });
+          return ($(sel)).html(res.find(sel).children()).fadeIn(100);
         })(sel));
       }
       return _results;
